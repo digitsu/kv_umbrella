@@ -1,4 +1,5 @@
 defmodule KVServer.Command do
+  require Logger
   @doc ~S"""
   Parses the given 'line' into a command.
 
@@ -44,36 +45,42 @@ defmodule KVServer.Command do
   @doc """
   Runs the given command
   """
-  def run(command, registry \\ KV.Registry)
+  def run(command)
 
-  def run({:create, bucket}, registry) do
-    KV.Registry.create(registry, bucket)
-    {:ok, "OK\r\n"}
+  def run({:create, bucket}) do
+    case KV.Router.route(bucket, KV.Registry, :create,
+                                 [KV.Registry, bucket]) do
+      pid when is_pid(pid) -> {:ok, "OK\r\n"}
+      _ -> {:error, "FAILED TO CREATE BUCKET"}
+    end
   end
 
-  def run({:get, bucket, key}, registry) do
-    lookup(bucket, registry, fn pid ->
+  def run({:get, bucket, key}) do
+    Logger.info("get #{bucket} #{key}")
+    lookup(bucket, fn pid ->
       value = KV.Bucket.get(pid, key)
       {:ok, "#{value}\r\nOK\r\n"}
     end)
   end
 
-  def run({:put, bucket, key, value}, registry) do
-    lookup(bucket, registry, fn pid ->
-    KV.Bucket.put(pid, key, value)
-    {:ok, "OK\r\n"}
+  def run({:put, bucket, key, value}) do
+    Logger.info("put #{bucket} #{key} #{value}")
+    lookup(bucket, fn pid ->
+      KV.Bucket.put(pid, key, value)
+      {:ok, "OK\r\n"}
     end)
   end
 
-  def run({:delete, bucket, key}, registry) do
-    lookup(bucket, registry, fn pid ->
-    KV.Bucket.delete(pid, key)
-    {:ok, "OK\r\n"}
+  def run({:delete, bucket, key}) do
+    Logger.info("delete #{bucket} #{key}")
+    lookup(bucket, fn pid ->
+      KV.Bucket.delete(pid, key)
+      {:ok, "OK\r\n"}
     end)
   end
 
-  defp lookup(bucket, registry, callback) do
-    case KV.Registry.lookup(registry, bucket) do
+  defp lookup(bucket, callback) do
+    case KV.Router.route(bucket, KV.Registry, :lookup, [KV.Registry, bucket]) do
       {:ok, pid} -> callback.(pid)
       :error -> {:error, :not_found}
     end

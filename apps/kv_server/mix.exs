@@ -12,7 +12,6 @@ defmodule KVServer.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases(),
     ]
   end
 
@@ -23,11 +22,6 @@ defmodule KVServer.MixProject do
       mod: {KVServer.Application, []}
     ]
   end
-  defp aliases do
-    [
-      test: "test --no-start"
-    ]
-  end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -35,7 +29,9 @@ defmodule KVServer.MixProject do
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       # {:sibling_app_in_umbrella, in_umbrella: true}
-      {:kv, in_umbrella: true}
+      {:kv, in_umbrella: true},
+      {:logger_file_backend, "~> 0.0.12"}
+
     ]
   end
 end

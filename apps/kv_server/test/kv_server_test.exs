@@ -10,12 +10,10 @@ defmodule KVServerTest do
   end
 
   setup do
-    Application.start(:kv_server)
     opts = [:binary, packet: :line, active: false]
     {:ok, socket} = :gen_tcp.connect('localhost', 4040, opts)
     %{socket: socket}
   end
-
 
   test "server interaction", %{socket: socket} do
     assert send_and_recv(socket, "UNKNOWN shopping\r\n") ==

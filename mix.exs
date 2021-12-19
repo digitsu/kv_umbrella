@@ -7,6 +7,19 @@ defmodule KvUmbrella.MixProject do
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      releases: [
+        foo: [
+          version: "0.0.1",
+          applications: [kv_server: :permanent, kv: :permanent],
+          cookie: "weknoweachother"
+        ],
+        bar: [
+          version: "0.0.1",
+          applications: [kv: :permanent],
+          cookie: "weknoweachother"
+        ],
+
+      ]
     ]
   end
 
@@ -16,6 +29,8 @@ defmodule KvUmbrella.MixProject do
   #
   # Run "mix help deps" for examples and options.
   defp deps do
-    []
+    [
+      {:logger_file_backend, "~> 0.0.12"}
+    ]
   end
 end
